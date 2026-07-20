@@ -6,12 +6,15 @@ Recent text-to-image diffusion models (SDXL, SD3.5, Flux, PixArt-α, etc.) achie
 
 - Limitations of Existing SOTA Methods
 1. Pre-trained diffusion models are trained on massive conventional image-text datasets, where rare attribute-object combinations rarely appear. During training, the model builds strong fixed semantic bindings between entities and their frequent ordinary attributes. This inherent bias suppresses rendering of unusual features and prevents the model from breaking predefined common associations during sampling.
+   
 ![Example Results](image/image6.png)
 
 2. RPG relies on LLMs to decompose prompts, recaption sub-prompts and assign independent generation regions. However, it cannot eliminate the rigid semantic bindings between objects and standard attributes, and collapses when facing complex spatial overlapping entities.
 3. R2F identifies rare attributes via LLMs and uses matched frequent concepts for progressive guidance. Unfortunately, the borrowed common concepts carry massive redundant irrelevant semantics, leading to severe object shape distortion in denoising steps.
+   
 ![Example Results](image/image5.png)
 
+To tackle all above challenges, we propose CI-Diff (Counterfactual Inference-based Diffusion): We construct a causal graph for text-to-image generation and leverage Natural Direct Effect (NDE) from counterfactual inference to eliminate the interference of common knowledge bias, then reformulate Classifier-Free Guidance (CFG) to decouple and amplify rare attributes in noise space. We design Temporal Morphological Fidelity Anchoring (TMFA), which injects background-removed edge priors within specific denoising timesteps to stabilize object structure while boosting the expression of unusual features. Extensive experiments on RareBench verify that our CI-Diff consistently outperforms all state-of-the-art diffusion models across alignment metrics, LLM evaluation and human user studies.
 
 
 
