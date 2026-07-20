@@ -16,7 +16,31 @@ Recent text-to-image diffusion models (SDXL, SD3.5, Flux, PixArt-α, etc.) achie
 
 To tackle all above challenges, we propose CI-Diff (Counterfactual Inference-based Diffusion): We construct a causal graph for text-to-image generation and leverage Natural Direct Effect (NDE) from counterfactual inference to eliminate the interference of common knowledge bias, then reformulate Classifier-Free Guidance (CFG) to decouple and amplify rare attributes in noise space. We design Temporal Morphological Fidelity Anchoring (TMFA), which injects background-removed edge priors within specific denoising timesteps to stabilize object structure while boosting the expression of unusual features. Extensive experiments on RareBench verify that our CI-Diff consistently outperforms all state-of-the-art diffusion models across alignment metrics, LLM evaluation and human user studies.
 
+## Our Proposed CI-Diff
+We are the first to introduce **counterfactual causal inference** into rare concept generation, and propose a training-free, plug-and-play framework named CI-Diff:
+1. We construct the causal graph for text-to-image synthesis and utilize **Natural Direct Effect (NDE)** to block the mediation interference of common knowledge bias $K$, extracting the independent generation contribution of rare attributes，The difference between NDE of rare prompt and corresponding subject-only common prompt isolates the pure causal effect of atypical attributes.
+   
+   $$
+   \hat{z}^{un}_{t} = z^{gt}_{T-t} \odot m_{z} + z^{un}_{t} \odot (1 - m_{z}),
+   $$
 
+
+3. We parameterize NDE on Classifier-Free Guidance (CFG) and reformulate the final noise prediction function for denoising:
+$$
+\tilde{\epsilon}_{\theta}(x_t,t,c)
+= \underbrace{s_{cfg}\cdot \epsilon_{\theta}(x_t,t,p_{rare})+(1-s_{cfg})\cdot \epsilon_{\theta}(x_t,t,\emptyset)}_{\text{Standard CFG Base Generation}}
++ \underbrace{s_{rare}\cdot \big(\epsilon_{\theta}(x_t,t,p_{rare})-\epsilon_{\theta}(x_t,t,p_{common})\big)}_{\text{Counterfactual Rare Attribute Accent Term}}
+$$
+The additional counterfactual accent term amplifies the activation of unusual features in latent noise space.
+
+3. We design **Temporal Morphological Fidelity Anchoring (TMFA)** to inject background-removed edge maps within specific denoising timesteps to constrain object contours, resolving shape distortion caused by large $s_{rare}$:
+$$
+C_{img}(t)=
+\begin{cases}
+Edge\big(RemoveBG(I_{ref})\big), & t\in[\tau_1 T,\tau_2 T] \\
+0, & \text{otherwise}
+\end{cases}
+$$
 
 
 # Inference
